@@ -1,35 +1,45 @@
 import React from "react";
 import Dropzone from "react-dropzone";
+import { grey } from "@material-ui/core/colors";
+import { makeStyles, Paper, Box, Typography } from "@material-ui/core";
+
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    padding: theme.spacing(2),
+    textAlign: "center",
+    color: theme.palette.text.secondary,
+  },
+}));
 
 function MyDropzone({ setUploadedFile, uploadedFile }) {
   const onDrop = (acceptedFiles) => {
     // console.log(acceptedFiles[0]);
     setUploadedFile(acceptedFiles[0]);
   };
+
+  const classes = useStyles();
   return (
     <Dropzone onDrop={onDrop}>
       {({ getRootProps, getInputProps }) => (
         <section>
-          <div
-            {...getRootProps()}
-            className="bg-light border-secondary"
-            style={{
-              borderStyle: "dotted",
-              padding: "50px 10px",
-              cursor: "pointer",
-            }}
-          >
-            <input {...getInputProps()} />
-            <div className="d-flex align-items-center justify-content-center">
-              {!uploadedFile
-                ? (
-                  <span>Drop file or Click to select file</span>
-                )
-                : (
+          <Box border={1} borderColor="grey.500" borderRadius="borderRadius">
+            <Paper
+              {...getRootProps()}
+              className={classes.paper}
+              style={{
+                cursor: "pointer",
+              }}
+            >
+              <input {...getInputProps()} />
+              <Box p={5}>
+                {!uploadedFile ? (
+                  <Typography>Drop file or Click to select file</Typography>
+                ) : (
                   <span>{uploadedFile.name}</span>
                 )}
-            </div>
-          </div>
+              </Box>
+            </Paper>
+          </Box>
         </section>
       )}
     </Dropzone>

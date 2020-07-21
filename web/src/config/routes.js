@@ -1,5 +1,5 @@
 import Login from "../pages/Login";
-import Home from "../pages/Home";
+import Home from "../pages/Home/Home";
 import DocumentDetails from "../pages/DocumentDetails";
 import DoctorList from "../pages/Doctor/DoctorList";
 import DoctorProfile from "../pages/Doctor/DoctorProfile";

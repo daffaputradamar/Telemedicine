@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import { routes } from "./config/routes";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { BrowserRouter, Switch } from "react-router-dom";
 import { FirebaseContext } from "./components/Firebase";
 import { AuthUserContext } from "./components/Session";
 import PublicRoute from "./components/Session/PublicRoute";
@@ -8,6 +8,13 @@ import PrivateRoute from "./components/Session/PrivateRoute";
 import { makeStyles, Backdrop, CircularProgress } from "@material-ui/core";
 
 let listener;
+
+const useStyles = makeStyles((theme) => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: "#fff",
+  },
+}));
 
 function App() {
   const firebaseContext = useContext(FirebaseContext);
@@ -20,18 +27,11 @@ function App() {
       authUser ? setAuthUser(authUser) : setAuthUser(null);
       setLoading(false);
     });
-    // console.log(firebaseContext.auth);
+
     return function cleanup() {
       listener();
     };
   }, []);
-
-  const useStyles = makeStyles((theme) => ({
-    backdrop: {
-      zIndex: theme.zIndex.drawer + 1,
-      color: "#fff",
-    },
-  }));
 
   const renderRoutes = () => {
     return routes.map((route) => {

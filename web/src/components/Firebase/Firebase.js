@@ -1,5 +1,7 @@
 import app from "firebase/app";
 import "firebase/auth";
+import "firebase/storage";
+import "firebase/database";
 
 const config = {
   apiKey: "AIzaSyAZTljZeyPWHyvzvPn_yHNU4a4Hkhs0V8Q",
@@ -16,6 +18,8 @@ class Firebase {
   constructor() {
     app.initializeApp(config);
     this.auth = app.auth();
+    this.storage = app.storage();
+    this.database = app.database();
   }
 
   doSignInWithEmailAndPassword = (email, password) =>

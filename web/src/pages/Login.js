@@ -15,19 +15,6 @@ import { LockOutlined } from "@material-ui/icons";
 import { FirebaseContext } from "../components/Firebase";
 import { red } from "@material-ui/core/colors";
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://telermedicine.firebaseio.com">
-        Telemedicine
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
 const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -55,6 +42,19 @@ const DangerTextTypography = withStyles({
     fontSize: "0.9rem",
   },
 })(Typography);
+
+function Copyright() {
+  return (
+    <Typography variant="body2" color="textSecondary" align="center">
+      {"Copyright © "}
+      <Link color="inherit" href="https://telermedicine.firebaseio.com">
+        Telemedicine
+      </Link>{" "}
+      {new Date().getFullYear()}
+      {"."}
+    </Typography>
+  );
+}
 
 const INITIAL_STATE = {
   email: "",
