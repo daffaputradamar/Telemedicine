@@ -22,6 +22,17 @@ class Firebase {
     this.database = app.database();
   }
 
+  //Database
+  refDoctors = () => this.database.ref("/users");
+  refDocs = () => this.database.ref("/documents");
+  refDocsSent = () => this.database.ref("/documentSent");
+
+  //Storage
+  uploadDocs = (file, filename) =>
+    this.storage.ref(`/file/${filename}`).put(file);
+  getDocsUrl = (filename) => this.storage.ref("file").child(filename);
+
+  //Auth
   doSignInWithEmailAndPassword = (email, password) =>
     this.auth.signInWithEmailAndPassword(email, password);
 

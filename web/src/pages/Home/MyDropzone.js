@@ -1,6 +1,5 @@
 import React from "react";
 import Dropzone from "react-dropzone";
-import { grey } from "@material-ui/core/colors";
 import { makeStyles, Paper, Box, Typography } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({

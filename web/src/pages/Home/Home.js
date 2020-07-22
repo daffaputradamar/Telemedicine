@@ -1,20 +1,19 @@
-import React, { useEffect, useState, useContext } from "react";
-import MyDropzone from "../../components/MyDropzone";
+import React, { useEffect, useState, useContext, Fragment } from "react";
+import MyDropzone from "./MyDropzone";
 import { FirebaseContext } from "../../components/Firebase";
-import { timeConverter } from "../../lib/timeConverter";
+import { fileNameDate } from "../../lib/timeConverter";
 import {
   Container,
   Grid,
-  Paper,
   makeStyles,
   Box,
   Button,
-  Divider,
-  Typography,
   CircularProgress,
+  CssBaseline,
 } from "@material-ui/core";
 import SelectDoctors from "./SelectDoctors";
 import DocsList from "../../components/DocsList";
+import Navbar from "../../components/Navbar";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -40,7 +39,7 @@ function Home() {
   }, []);
 
   const fetchDoctors = () => {
-    firebaseContext.database.ref("/users").on("value", (snapshot) => {
+    firebaseContext.refDoctors().on("value", (snapshot) => {
       const val = snapshot.val();
       const doctorList = Object.keys(val).map((key) => ({
         uid: key,
@@ -52,14 +51,16 @@ function Home() {
 
   const fetchDocs = () => {
     setloadingDocuments(true);
-    firebaseContext.database.ref("/documents").on("value", (snapshot) => {
+    firebaseContext.refDocs().on("value", (snapshot) => {
       const val = snapshot.val();
-      let documentList = Object.keys(val).map((key) => ({
-        docid: key,
-        ...val[key],
-      }));
-      documentList.reverse();
-      setDocuments(documentList);
+      if (val) {
+        let documentList = Object.keys(val).map((key) => ({
+          docid: key,
+          ...val[key],
+        }));
+        documentList.reverse();
+        setDocuments(documentList);
+      }
       setloadingDocuments(false);
     });
   };
@@ -69,43 +70,35 @@ function Home() {
     if (!pdfFile || !selectedDoctors) {
       console.error("No file was uploaded");
     } else {
-      const uploadTask = firebaseContext.storage
-        .ref(`/file/${pdfFile.name}`)
-        .put(pdfFile);
+      const formattedName = `${fileNameDate()}_${pdfFile.name}`;
+      const uploadTask = firebaseContext.uploadDocs(pdfFile, formattedName);
       uploadTask.on(
         "state_changed",
         (snapshot) => {},
         (err) => {
           console.error(err);
         },
-        () => {
-          firebaseContext.storage
-            .ref("file")
-            .child(pdfFile.name)
-            .getDownloadURL()
-            .then((firebaseUrl) => {
-              firebaseContext.database
-                .ref("/documents")
-                .push({
-                  filename: pdfFile.name,
-                  url: firebaseUrl,
-                  timestamp: Date.now(),
-                })
-                .then((snap) => {
-                  const key = snap.key;
-                  selectedDoctors.forEach((doctor) => {
-                    firebaseContext.database
-                      .ref("/documentSent")
-                      .child(`${key}_${doctor.value}`)
-                      .set({
-                        reply: "",
-                        timestamp: Date.now(),
-                      });
-                  });
-                  // setPdfFile(null);
-                  // setSelectedDoctors([]);
-                });
+        async () => {
+          const firebaseUrl = await firebaseContext
+            .getDocsUrl(formattedName)
+            .getDownloadURL();
+
+          const docSnapshot = await firebaseContext.refDocs().push({
+            filename: formattedName,
+            url: firebaseUrl,
+            timestamp: Date.now(),
+          });
+
+          const key = docSnapshot.key;
+          const _selectedDoctors = selectedDoctors;
+          _selectedDoctors.forEach((doctor) => {
+            firebaseContext.refDocsSent().child(`${key}_${doctor.value}`).set({
+              reply: "",
+              timestamp: Date.now(),
             });
+          });
+          setPdfFile(null);
+          setSelectedDoctors([]);
         }
       );
     }
@@ -114,45 +107,49 @@ function Home() {
   const classes = useStyles();
 
   return (
-    <Container>
-      <form onSubmit={onSubmit}>
-        <Box my={5}>
-          {/* <Box mb={2}>
-            <Typography variant="h5" align="center">
-              Kirim Dokumen
-            </Typography>
-          </Box> */}
-          <Grid container spacing={5}>
-            <Grid item xs={12} sm={4}>
-              <MyDropzone
-                uploadedFile={pdfFile}
-                selectedDoctors={selectedDoctors}
-                setUploadedFile={setPdfFile}
-              />
+    <Fragment>
+      <CssBaseline />
+      <Navbar />
+      <Container>
+        <form onSubmit={onSubmit}>
+          <Box my={5}>
+            {/* <Box mb={2}>
+              <Typography variant="h5" align="center">
+                Kirim Dokumen
+              </Typography>
+            </Box> */}
+            <Grid container spacing={5}>
+              <Grid item xs={12} sm={4}>
+                <MyDropzone
+                  uploadedFile={pdfFile}
+                  selectedDoctors={selectedDoctors}
+                  setUploadedFile={setPdfFile}
+                />
+              </Grid>
+              <Grid item xs={12} sm={8}>
+                <SelectDoctors
+                  doctors={doctors}
+                  selectedDoctors={selectedDoctors}
+                  setSelectedDoctors={setSelectedDoctors}
+                />
+                <Box mt={2}>
+                  <Button variant="contained" color="primary" type="submit">
+                    Kirim
+                  </Button>
+                </Box>
+              </Grid>
             </Grid>
-            <Grid item xs={12} sm={8}>
-              <SelectDoctors
-                doctors={doctors}
-                selectedDoctors={selectedDoctors}
-                setSelectedDoctors={setSelectedDoctors}
-              />
-              <Box mt={2}>
-                <Button variant="contained" color="primary" type="submit">
-                  Kirim
-                </Button>
-              </Box>
-            </Grid>
+          </Box>
+        </form>
+        {!loadingDocuments ? (
+          <DocsList documents={documents} />
+        ) : (
+          <Grid container direction="row" justify="center" alignItems="center">
+            <CircularProgress />
           </Grid>
-        </Box>
-      </form>
-      {!loadingDocuments ? (
-        <DocsList documents={documents} />
-      ) : (
-        <Grid container direction="row" justify="center" alignItems="center">
-          <CircularProgress />
-        </Grid>
-      )}
-    </Container>
+        )}
+      </Container>
+    </Fragment>
   );
 }
 
