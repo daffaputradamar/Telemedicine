@@ -94,6 +94,7 @@ function Home() {
           _selectedDoctors.forEach((doctor) => {
             firebaseContext.refDocsSent().child(`${key}_${doctor.value}`).set({
               reply: "",
+              name: doctor.label,
               timestamp: Date.now(),
             });
           });

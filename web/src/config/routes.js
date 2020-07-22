@@ -1,8 +1,8 @@
-import Login from "../pages/Login";
+import Login from "../pages/Login/Login";
 import Home from "../pages/Home/Home";
-import DocumentDetails from "../pages/DocumentDetails";
-import DoctorList from "../pages/Doctor/DoctorList";
-import DoctorProfile from "../pages/Doctor/DoctorProfile";
+import DocumentDetails from "../pages/DocumentDetails/DocumentDetails";
+import DoctorList from "../pages/DoctorList/DoctorList";
+import DoctorProfile from "../pages/DoctorProfile/DoctorProfile";
 
 export const routes = [
   {

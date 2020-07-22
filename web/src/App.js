@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 
 function App() {
   const firebaseContext = useContext(FirebaseContext);
-  const [authUser, setAuthUser] = useState(null);
+  const [authUser, setAuthUser] = useState(true);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

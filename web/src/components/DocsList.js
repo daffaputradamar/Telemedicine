@@ -9,9 +9,18 @@ import {
   Box,
   TextField,
   InputAdornment,
+  makeStyles,
 } from "@material-ui/core";
 import { Description, SearchOutlined } from "@material-ui/icons";
 import { timeConverter } from "../lib/timeConverter";
+import { Link } from "react-router-dom";
+
+const useStyles = makeStyles((theme) => ({
+  linkStyle: {
+    textDecoration: "none",
+    color: "#000",
+  },
+}));
 
 function DocsList({ documents }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,13 +38,14 @@ function DocsList({ documents }) {
     setDocsFiltered(filterDocs);
   };
 
+  const classes = useStyles();
   return (
     <Fragment>
-      <Box mb={2}>
+      {/* <Box mb={2}>
         <Typography variant="h5" align="center">
           List Dokumen
         </Typography>
-      </Box>
+      </Box> */}
       <Box display="flex" justifyContent="flex-end" marginBottom={2}>
         <TextField
           size="small"
@@ -57,18 +67,20 @@ function DocsList({ documents }) {
         <List component="nav" aria-label="main mailbox folders">
           {docsFiltered.map((doc) => {
             return (
-              <Box mb={1}>
-                <Paper variant="outlined">
-                  <ListItem button>
-                    <ListItemIcon>
-                      <Description color="error" fontSize="large" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={doc.filename}
-                      secondary={timeConverter(doc.timestamp)}
-                    />
-                  </ListItem>
-                </Paper>
+              <Box mb={1} key={doc.docid}>
+                <Link to={`/docs/${doc.docid}`} className={classes.linkStyle}>
+                  <Paper variant="outlined">
+                    <ListItem button>
+                      <ListItemIcon>
+                        <Description color="error" fontSize="large" />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={doc.filename}
+                        secondary={timeConverter(doc.timestamp)}
+                      />
+                    </ListItem>
+                  </Paper>
+                </Link>
               </Box>
             );
           })}

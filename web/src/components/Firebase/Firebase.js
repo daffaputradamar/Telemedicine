@@ -24,8 +24,17 @@ class Firebase {
 
   //Database
   refDoctors = () => this.database.ref("/users");
+  refDoctorById = (id) => this.database.ref("/users").child(id);
   refDocs = () => this.database.ref("/documents");
+  refDocsById = (id) => this.database.ref("/documents").child(id);
   refDocsSent = () => this.database.ref("/documentSent");
+  refDocsDetail = (id) => this.database.ref("/documents").child(id);
+  refDoctorByDoc = (docid) =>
+    this.database
+      .ref("/documentSent")
+      .orderByKey()
+      .startAt(docid)
+      .endAt(`${docid}\uf8ff`);
 
   //Storage
   uploadDocs = (file, filename) =>

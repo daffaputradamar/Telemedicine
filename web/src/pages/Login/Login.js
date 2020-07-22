@@ -12,7 +12,7 @@ import {
   withStyles,
 } from "@material-ui/core";
 import { LockOutlined } from "@material-ui/icons";
-import { FirebaseContext } from "../components/Firebase";
+import { FirebaseContext } from "../../components/Firebase";
 import { red } from "@material-ui/core/colors";
 
 const useStyles = makeStyles((theme) => ({
