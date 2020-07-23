@@ -9,6 +9,7 @@ import {
   Box,
   Typography,
   Divider,
+  Button,
 } from "@material-ui/core";
 import Navbar from "../../components/Navbar";
 import { FirebaseContext } from "../../components/Firebase";
@@ -27,25 +28,54 @@ function DocumentDetails(props) {
 
   useEffect(() => {
     fetchDocDetail();
-    fetchDoctorByDoc();
+    fetchDoctorsByDoc();
   }, []);
 
   const fetchDocDetail = () => {
-    firebaseContext.refDocsDetail(params.id).once("value", (snapshot) => {
-      setDocDetail(snapshot.val());
+    firebaseContext
+      .refDocs()
+      .child(params.id)
+      .once("value", (snapshot) => {
+        setDocDetail(snapshot.val());
+      });
+  };
+
+  const fetchDoctorsByDoc = () => {
+    const ref = firebaseContext.refDocToUsers(params.id);
+    ref.on("value", (snapshot) => {
+      const val = snapshot.val();
+      let uids = Object.keys(val);
+      Promise.all(
+        uids.map(async (id) => {
+          const valUser = (
+            await firebaseContext.refDoctors().child(id).once("value")
+          ).val();
+          return { uid: id, ...valUser };
+        })
+      ).then((result) => {
+        const _doctors = result.map((res) => {
+          return {
+            ...res,
+            reply: val[res.uid],
+          };
+        });
+        setDoctors(_doctors);
+      });
     });
   };
 
-  const fetchDoctorByDoc = () => {
-    firebaseContext.refDoctorByDoc(params.id).on("value", (snapshot) => {
-      const val = snapshot.val();
-      let replies = Object.keys(val).map((key) => ({
-        ids: key,
-        ...val[key],
-      }));
-      setDoctors(replies);
-    });
-  };
+  // const downloadFile = (url) => {
+  //   const link = document.createElement("a");
+  //   if (link.download !== undefined) {
+  //     link.setAttribute("href", url);
+  //     link.setAttribute("target", "_blank");
+  //     link.style.visibility = "hidden";
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   }
+  //   console.log("tes");
+  // };
 
   return (
     <Fragment>
@@ -64,19 +94,24 @@ function DocumentDetails(props) {
                 <CircularProgress />
               </Grid>
             ) : (
-              <Box display="flex" alignItems="center">
-                <Box mr={4}>
-                  <Description color="error" style={{ fontSize: "3rem" }} />
-                </Box>
-                <div>
-                  <Box mb={1}>
-                    <Typography variant="h6">{docDetail.filename}</Typography>
+              <Grid container alignItems="center" justify="space-between">
+                <Box display="flex" alignItems="center">
+                  <Box mr={4}>
+                    <Description color="error" style={{ fontSize: "3rem" }} />
                   </Box>
-                  <Typography variant="caption">
-                    {timeConverter(docDetail.timestamp)}
-                  </Typography>
-                </div>
-              </Box>
+                  <div>
+                    <Box mb={1}>
+                      <Typography variant="h6">{docDetail.filename}</Typography>
+                    </Box>
+                    <Typography variant="caption">
+                      {timeConverter(docDetail.timestamp)}
+                    </Typography>
+                  </div>
+                </Box>
+                <Button href={docDetail.url} download target="_blank">
+                  Download
+                </Button>
+              </Grid>
             )}
           </CardContent>
         </Card>

@@ -92,11 +92,7 @@ function Home() {
           const key = docSnapshot.key;
           const _selectedDoctors = selectedDoctors;
           _selectedDoctors.forEach((doctor) => {
-            firebaseContext.refDocsSent().child(`${key}_${doctor.value}`).set({
-              reply: "",
-              name: doctor.label,
-              timestamp: Date.now(),
-            });
+            firebaseContext.doCreateUserDoc(doctor.value, key, "");
           });
           setPdfFile(null);
           setSelectedDoctors([]);

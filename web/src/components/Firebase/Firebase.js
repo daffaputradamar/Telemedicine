@@ -24,17 +24,23 @@ class Firebase {
 
   //Database
   refDoctors = () => this.database.ref("/users");
-  refDoctorById = (id) => this.database.ref("/users").child(id);
   refDocs = () => this.database.ref("/documents");
-  refDocsById = (id) => this.database.ref("/documents").child(id);
-  refDocsSent = () => this.database.ref("/documentSent");
-  refDocsDetail = (id) => this.database.ref("/documents").child(id);
-  refDoctorByDoc = (docid) =>
-    this.database
-      .ref("/documentSent")
-      .orderByKey()
-      .startAt(docid)
-      .endAt(`${docid}\uf8ff`);
+  refDocToUsers = (docid) => this.database.ref("/document_user").child(docid);
+  refUserToDocs = (uid) => this.database.ref("/user_document").child(uid);
+
+  doCreateUserDoc = async (user, doc, reply) =>
+    await this.database.ref().update({
+      [`user_document/${user}/${doc}`]: {
+        reply,
+        isReplied: false,
+        timestamp: Date.now(),
+      },
+      [`document_user/${doc}/${user}`]: {
+        reply,
+        isReplied: false,
+        timestamp: Date.now(),
+      },
+    });
 
   //Storage
   uploadDocs = (file, filename) =>
