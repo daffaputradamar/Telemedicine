@@ -73,6 +73,7 @@ const headCells = [
   { id: "name", numeric: false, disablePadding: true, label: "Nama" },
   { id: "email", numeric: false, disablePadding: false, label: "Email" },
   { id: "phone", numeric: false, disablePadding: false, label: "No. Hp" },
+  { id: "counter", numeric: true, disablePadding: false, label: "Counter" },
   { id: "link", numeric: false, disablePadding: false, label: "Detail" },
 ];
 
@@ -351,6 +352,7 @@ function DoctorTable({ rows }) {
                       </TableCell>
                       <TableCell align="left">{row.email}</TableCell>
                       <TableCell align="left">{row.phone}</TableCell>
+                      <TableCell align="right">{row.counter}</TableCell>
                       <TableCell align="left">
                         <Link
                           to={`/u/${row.uid}`}

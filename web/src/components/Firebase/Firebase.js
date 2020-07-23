@@ -28,7 +28,7 @@ class Firebase {
   refDocToUsers = (docid) => this.database.ref("/document_user").child(docid);
   refUserToDocs = (uid) => this.database.ref("/user_document").child(uid);
 
-  doCreateUserDoc = async (user, doc, reply) =>
+  doCreateUserDoc = async (user, doc, reply) => {
     await this.database.ref().update({
       [`user_document/${user}/${doc}`]: {
         reply,
@@ -41,6 +41,15 @@ class Firebase {
         timestamp: Date.now(),
       },
     });
+  };
+
+  // doUpdateUserCounter = async (user) => {
+  //   const doctor = (await this.refDoctors().child(user).once("value")).val();
+  //   await this.refDoctors()
+  //     .child(user)
+  //     .child("counter")
+  //     .set(doctor.counter + 1);
+  // };
 
   //Storage
   uploadDocs = (file, filename) =>

@@ -60,7 +60,7 @@ function DoctorAccordion({ doctors }) {
                   </Box>
                 </div>
                 <Link to={`/u/${doctor.uid}`} className={classes.linkStyle}>
-                  <Button color="primary">See Profile</Button>
+                  <Button color="primary">Lihat Profile</Button>
                 </Link>
               </Grid>
             </AccordionSummary>
