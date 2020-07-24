@@ -78,7 +78,7 @@ function EnhancedTableHead(props) {
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
-            inputProps={{ "aria-label": "select all desserts" }}
+            inputProps={{ "aria-label": "select all doctors" }}
           />
         </TableCell>
         {headCells.map((headCell) => (
@@ -233,7 +233,7 @@ function DoctorTable({ rows, selected, setSelected, deleteDoctor }) {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.name);
+      const newSelecteds = rows.map((n) => n.uid);
       setSelected(newSelecteds);
       return;
     }
@@ -273,7 +273,7 @@ function DoctorTable({ rows, selected, setSelected, deleteDoctor }) {
     setDense(event.target.checked);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
+  const isSelected = (uid) => selected.indexOf(uid) !== -1;
 
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
