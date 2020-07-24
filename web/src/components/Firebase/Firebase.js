@@ -43,13 +43,29 @@ class Firebase {
     });
   };
 
-  // doUpdateUserCounter = async (user) => {
-  //   const doctor = (await this.refDoctors().child(user).once("value")).val();
-  //   await this.refDoctors()
-  //     .child(user)
-  //     .child("counter")
-  //     .set(doctor.counter + 1);
-  // };
+  doDeleteDoctor = async (users) => {
+    users.forEach(async (user) => {
+      const userNull = {
+        [`users/${user}`]: null,
+        [`user_document/${user}`]: null,
+      };
+      const docIds = Object.keys(
+        (await this.refUserToDocs(user).once("value")).val()
+      );
+      const opts = docIds.reduce((prev, curr) => {
+        prev[`document_user/${curr}/${user}`] = null;
+        return prev;
+      }, {});
+      // console.log({
+      //   ...userNull,
+      //   ...opts,
+      // });
+      await this.database.ref().update({
+        ...userNull,
+        ...opts,
+      });
+    });
+  };
 
   //Storage
   uploadDocs = (file, filename) =>

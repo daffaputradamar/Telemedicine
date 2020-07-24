@@ -14,7 +14,6 @@ import {
 import Navbar from "../../components/Navbar";
 import { FirebaseContext } from "../../components/Firebase";
 import { PersonOutline } from "@material-ui/icons";
-import DocsList from "../../components/DocsList";
 import DocsAccordion from "./DocsAccordion";
 
 function DoctorProfile(props) {
@@ -28,44 +27,44 @@ function DoctorProfile(props) {
   const [docsSum, setDocsSum] = useState(0);
 
   useEffect(() => {
+    const fetchDoctorDetail = () => {
+      firebaseContext
+        .refDoctors()
+        .child(params.id)
+        .once("value", (snapshot) => {
+          setDoctorDetail(snapshot.val());
+        });
+    };
+    const fetchDocsByDoctor = () => {
+      const ref = firebaseContext.refUserToDocs(params.id);
+      ref.on("value", (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+          let docids = Object.keys(val);
+          Promise.all(
+            docids.map(async (id) => {
+              const valDoc = (
+                await firebaseContext.refDocs().child(id).once("value")
+              ).val();
+              return { docid: id, ...valDoc };
+            })
+          ).then((result) => {
+            const _docs = result.map((res) => {
+              return {
+                ...res,
+                reply: val[res.docid],
+              };
+            });
+            setDocsSum(_docs.length);
+            setDocs(_docs.reverse());
+          });
+        }
+      });
+    };
+
     fetchDoctorDetail();
     fetchDocsByDoctor();
-  }, []);
-
-  const fetchDoctorDetail = () => {
-    firebaseContext
-      .refDoctors()
-      .child(params.id)
-      .once("value", (snapshot) => {
-        setDoctorDetail(snapshot.val());
-      });
-  };
-  const fetchDocsByDoctor = () => {
-    const ref = firebaseContext.refUserToDocs(params.id);
-    ref.on("value", (snapshot) => {
-      const val = snapshot.val();
-      if (val) {
-        let docids = Object.keys(val);
-        Promise.all(
-          docids.map(async (id) => {
-            const valDoc = (
-              await firebaseContext.refDocs().child(id).once("value")
-            ).val();
-            return { docid: id, ...valDoc };
-          })
-        ).then((result) => {
-          const _docs = result.map((res) => {
-            return {
-              ...res,
-              reply: val[res.docid],
-            };
-          });
-          setDocsSum(_docs.length);
-          setDocs(_docs);
-        });
-      }
-    });
-  };
+  }, [firebaseContext, params.id]);
 
   return (
     <Fragment>

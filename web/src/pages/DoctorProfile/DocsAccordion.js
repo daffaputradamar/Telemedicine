@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Accordion,
@@ -10,7 +10,7 @@ import {
   Button,
   makeStyles,
 } from "@material-ui/core";
-import { ExpandMore, PersonOutline, Description } from "@material-ui/icons";
+import { ExpandMore, Description } from "@material-ui/icons";
 import { timeConverter } from "../../lib/timeConverter";
 
 const useStyles = makeStyles((theme) => ({
@@ -28,8 +28,6 @@ function DocsAccordion({ docs }) {
   };
 
   const classes = useStyles();
-
-  //   return <>Helo</>;
 
   return (
     <div>

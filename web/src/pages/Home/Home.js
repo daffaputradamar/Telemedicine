@@ -5,7 +5,6 @@ import { fileNameDate } from "../../lib/timeConverter";
 import {
   Container,
   Grid,
-  makeStyles,
   Box,
   Button,
   CircularProgress,
@@ -14,14 +13,6 @@ import {
 import SelectDoctors from "./SelectDoctors";
 import DocsList from "../../components/DocsList";
 import Navbar from "../../components/Navbar";
-
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: "center",
-    color: theme.palette.text.secondary,
-  },
-}));
 
 function Home() {
   const firebaseContext = useContext(FirebaseContext);
@@ -34,36 +25,36 @@ function Home() {
   const [loadingDocuments, setloadingDocuments] = useState(false);
 
   useEffect(() => {
-    fetchDoctors();
-    fetchDocs();
-  }, []);
-
-  const fetchDoctors = () => {
-    firebaseContext.refDoctors().on("value", (snapshot) => {
-      const val = snapshot.val();
-      const doctorList = Object.keys(val).map((key) => ({
-        uid: key,
-        ...val[key],
-      }));
-      setDoctors(doctorList);
-    });
-  };
-
-  const fetchDocs = () => {
-    setloadingDocuments(true);
-    firebaseContext.refDocs().on("value", (snapshot) => {
-      const val = snapshot.val();
-      if (val) {
-        let documentList = Object.keys(val).map((key) => ({
-          docid: key,
+    const fetchDoctors = () => {
+      firebaseContext.refDoctors().on("value", (snapshot) => {
+        const val = snapshot.val();
+        const doctorList = Object.keys(val).map((key) => ({
+          uid: key,
           ...val[key],
         }));
-        documentList.reverse();
-        setDocuments(documentList);
-      }
-      setloadingDocuments(false);
-    });
-  };
+        setDoctors(doctorList);
+      });
+    };
+
+    const fetchDocs = () => {
+      setloadingDocuments(true);
+      firebaseContext.refDocs().on("value", (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+          let documentList = Object.keys(val).map((key) => ({
+            docid: key,
+            ...val[key],
+          }));
+          documentList.reverse();
+          setDocuments(documentList);
+        }
+        setloadingDocuments(false);
+      });
+    };
+
+    fetchDoctors();
+    fetchDocs();
+  }, [firebaseContext]);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -100,8 +91,6 @@ function Home() {
       );
     }
   };
-
-  const classes = useStyles();
 
   return (
     <Fragment>

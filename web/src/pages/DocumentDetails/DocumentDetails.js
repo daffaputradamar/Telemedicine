@@ -27,55 +27,44 @@ function DocumentDetails(props) {
   const [doctors, setDoctors] = useState(null);
 
   useEffect(() => {
+    const fetchDocDetail = () => {
+      firebaseContext
+        .refDocs()
+        .child(params.id)
+        .once("value", (snapshot) => {
+          setDocDetail(snapshot.val());
+        });
+    };
+
+    const fetchDoctorsByDoc = () => {
+      const ref = firebaseContext.refDocToUsers(params.id);
+      ref.on("value", (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+          let uids = Object.keys(val);
+          Promise.all(
+            uids.map(async (id) => {
+              const valUser = (
+                await firebaseContext.refDoctors().child(id).once("value")
+              ).val();
+              return { uid: id, ...valUser };
+            })
+          ).then((result) => {
+            const _doctors = result.map((res) => {
+              return {
+                ...res,
+                reply: val[res.uid],
+              };
+            });
+            setDoctors(_doctors);
+          });
+        }
+      });
+    };
+
     fetchDocDetail();
     fetchDoctorsByDoc();
-  }, []);
-
-  const fetchDocDetail = () => {
-    firebaseContext
-      .refDocs()
-      .child(params.id)
-      .once("value", (snapshot) => {
-        setDocDetail(snapshot.val());
-      });
-  };
-
-  const fetchDoctorsByDoc = () => {
-    const ref = firebaseContext.refDocToUsers(params.id);
-    ref.on("value", (snapshot) => {
-      const val = snapshot.val();
-      let uids = Object.keys(val);
-      Promise.all(
-        uids.map(async (id) => {
-          const valUser = (
-            await firebaseContext.refDoctors().child(id).once("value")
-          ).val();
-          return { uid: id, ...valUser };
-        })
-      ).then((result) => {
-        const _doctors = result.map((res) => {
-          return {
-            ...res,
-            reply: val[res.uid],
-          };
-        });
-        setDoctors(_doctors);
-      });
-    });
-  };
-
-  // const downloadFile = (url) => {
-  //   const link = document.createElement("a");
-  //   if (link.download !== undefined) {
-  //     link.setAttribute("href", url);
-  //     link.setAttribute("target", "_blank");
-  //     link.style.visibility = "hidden";
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     document.body.removeChild(link);
-  //   }
-  //   console.log("tes");
-  // };
+  }, [firebaseContext, params.id]);
 
   return (
     <Fragment>

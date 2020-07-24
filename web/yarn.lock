@@ -5825,11 +5825,6 @@ globby@^6.1.0:
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
 
-goober@^1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/goober/-/goober-1.8.0.tgz#ed97e40e87300c6d1c8304a9d4b0f1398ff7669a"
-  integrity sha512-9ZFoOkBccexjqIgcwlhq7C/eCSkgTZX0BdNUkOnBFLedrJgo3R8lp9ckd/qqtngtF/JDyXSxJzwMU98kNjZ4Mw==
-
 graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.2:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.3.tgz#4a12ff1b60376ef09862c2093edd908328be8423"
@@ -9715,6 +9710,11 @@ react-app-polyfill@^1.0.6:
     regenerator-runtime "^0.13.3"
     whatwg-fetch "^3.0.0"
 
+react-confirm-alert@^2.6.1:
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/react-confirm-alert/-/react-confirm-alert-2.6.1.tgz#ab870eea77131547daabe2b97f6cd528ca4d921d"
+  integrity sha512-KxlpQoR4x/ET1oFPm/IGpsqnpzP17qkkQZuaO3pw7zGZ9oP5hElPtq/1vgoikoqNHQ2tMm6Iw9HQUNLoNgXkRA==
+
 react-dev-utils@^10.2.1:
   version "10.2.1"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-10.2.1.tgz#f6de325ae25fa4d546d09df4bb1befdc6dd19c19"
@@ -9785,13 +9785,6 @@ react-is@^16.8.1, react-is@^16.8.4:
   version "16.12.0"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.12.0.tgz#2cc0fe0fba742d97fd527c42a13bec4eeb06241c"
   integrity sha512-rPCkf/mWBtKc97aLL9/txD8DZdemK0vkA3JMLShjlJB3Pj3s+lpf1KaBzMfQrAmhMQB0n1cU/SUGgKKBCe837Q==
-
-react-multi-select-component@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/react-multi-select-component/-/react-multi-select-component-3.0.0.tgz#7ef15edc21cf4bd2cd1a0a9346cc9058ad0c685a"
-  integrity sha512-A0wYNJtZ/F9fcFpuLHX7UkccquTcXgDPIyJsnr4gSaP6uj0TfEAvxDX6v31u2gmqWU5nanGLT0s0Pjgfs024jg==
-  dependencies:
-    goober "^1.8.0"
 
 react-router-dom@^5.2.0:
   version "5.2.0"

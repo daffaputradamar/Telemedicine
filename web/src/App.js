@@ -31,7 +31,7 @@ function App() {
     return function cleanup() {
       listener();
     };
-  }, []);
+  }, [firebaseContext]);
 
   const renderRoutes = () => {
     return routes.map((route) => {
