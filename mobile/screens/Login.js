@@ -1,101 +1,114 @@
-import React, { Component } from "react";
+import React, { useState, useContext } from "react";
 import {
   ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   StyleSheet,
+  Alert,
+  ToastAndroid,
 } from "react-native";
 
 import { Button, Block, Input, Text } from "../components";
 import { theme } from "../constants";
+import { FirebaseContext } from "../components/Firebase";
 
-const VALID_EMAIL = "contact@react-ui-kit.com";
-const VALID_PASSWORD = "subscribe";
+const INITIAL_STATE = {
+  email: "",
+  password: "",
+  errors: [],
+  errMessage: "",
+  loading: false,
+};
 
-export default class Login extends Component {
-  state = {
-    email: VALID_EMAIL,
-    password: VALID_PASSWORD,
-    errors: [],
-    loading: false,
-  };
+function Login(props) {
+  const firebaseContext = useContext(FirebaseContext);
 
-  handleLogin() {
-    const { navigation } = this.props;
-    const { email, password } = this.state;
+  const [formLogin, setFormLogin] = useState({ ...INITIAL_STATE });
+
+  handleLogin = () => {
+    const { navigation } = props;
+    const { email, password } = formLogin;
     const errors = [];
 
     Keyboard.dismiss();
-    this.setState({ loading: true });
+    setFormLogin({ ...formLogin, loading: true });
 
     // check with backend API or with some static data
-    if (email !== VALID_EMAIL) {
+    if (email == "") {
       errors.push("email");
     }
-    if (password !== VALID_PASSWORD) {
+    if (password == "") {
       errors.push("password");
     }
 
-    this.setState({ errors, loading: false });
+    setFormLogin({ errors });
 
     if (!errors.length) {
-      navigation.navigate("Browse");
+      firebaseContext
+        .doSignInWithEmailAndPassword(formLogin.email, formLogin.password)
+        .then(() => {
+          setFormLogin({ ...INITIAL_STATE });
+        })
+        .catch((err) => setFormLogin({ ...formLogin, errMessage: err }));
     }
-  }
+  };
 
-  render() {
-    const { navigation } = this.props;
-    const { loading, errors } = this.state;
-    const hasErrors = (key) => (errors.includes(key) ? styles.hasErrors : null);
+  const { navigation } = props;
+  const { loading, errors } = formLogin;
+  const hasErrors = (key) => (errors.includes(key) ? styles.hasErrors : null);
 
-    return (
-      <KeyboardAvoidingView style={styles.login} behavior="padding">
-        <Block padding={[0, theme.sizes.base * 2]}>
-          <Text h1 bold>
-            Login
-          </Text>
-          <Block middle>
-            <Input
-              label="Email"
-              error={hasErrors("email")}
-              style={[styles.input, hasErrors("email")]}
-              defaultValue={this.state.email}
-              onChangeText={(text) => this.setState({ email: text })}
-            />
-            <Input
-              secure
-              label="Password"
-              error={hasErrors("password")}
-              style={[styles.input, hasErrors("password")]}
-              defaultValue={this.state.password}
-              onChangeText={(text) => this.setState({ password: text })}
-            />
-            <Button gradient onPress={() => this.handleLogin()}>
-              {loading ? (
-                <ActivityIndicator size="small" color="white" />
-              ) : (
-                <Text bold white center>
-                  Login
-                </Text>
-              )}
-            </Button>
-
-            <Button onPress={() => navigation.navigate("Forgot")}>
-              <Text
-                gray
-                caption
-                center
-                style={{ textDecorationLine: "underline" }}
-              >
-                Forgot your password?
+  return (
+    <KeyboardAvoidingView style={styles.login} behavior="height">
+      <Block padding={[0, theme.sizes.base * 2]}>
+        <Text h1 bold>
+          Login
+        </Text>
+        <Block middle>
+          <Input
+            label="Email"
+            email
+            error={hasErrors("email")}
+            style={[styles.input, hasErrors("email")]}
+            defaultValue={formLogin.email}
+            onChangeText={(text) => setFormLogin({ ...formLogin, email: text })}
+          />
+          <Input
+            secure
+            label="Password"
+            error={hasErrors("password")}
+            style={[styles.input, hasErrors("password")]}
+            defaultValue={formLogin.password}
+            onChangeText={(text) =>
+              setFormLogin({ ...formLogin, password: text })
+            }
+          />
+          <Button gradient onPress={() => handleLogin()}>
+            {loading ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <Text bold white center>
+                Login
               </Text>
-            </Button>
-          </Block>
+            )}
+          </Button>
+
+          <Button onPress={() => navigation.navigate("Forgot")}>
+            <Text
+              gray
+              caption
+              center
+              style={{ textDecorationLine: "underline" }}
+            >
+              Forgot your password?
+            </Text>
+          </Button>
         </Block>
-      </KeyboardAvoidingView>
-    );
-  }
+      </Block>
+    </KeyboardAvoidingView>
+  );
 }
+
+export default Login;
 
 const styles = StyleSheet.create({
   login: {

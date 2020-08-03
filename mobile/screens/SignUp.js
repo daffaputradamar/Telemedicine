@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState, useContext } from "react";
 import {
   Alert,
   ActivityIndicator,
@@ -9,34 +9,48 @@ import {
 
 import { Button, Block, Input, Text } from "../components";
 import { theme } from "../constants";
+import { FirebaseContext } from "../components/Firebase";
 
-export default class SignUp extends Component {
-  state = {
-    email: null,
-    username: null,
-    password: null,
-    phone: null,
-    errors: [],
-    loading: false,
-  };
+const INITIAL_STATE = {
+  email: null,
+  name: null,
+  password: null,
+  phone: null,
+  errors: [],
+  loading: false,
+};
 
-  handleSignUp() {
-    const { navigation } = this.props;
-    const { email, username, password, phone } = this.state;
+function SignUp({ navigation }) {
+  const firebaseContext = useContext(FirebaseContext);
+  const [signUpForm, setSignUpForm] = useState({ ...INITIAL_STATE });
+
+  const handleSignUp = () => {
+    const { email, name, password, phone } = signUpForm;
     const errors = [];
 
     Keyboard.dismiss();
-    this.setState({ loading: true });
+    setSignUpForm({ ...signUpForm, loading: true });
 
     // check with backend API or with some static data
     if (!email) errors.push("email");
-    if (!username) errors.push("username");
+    if (!name) errors.push("name");
     if (!password) errors.push("password");
     if (!phone) errors.push("phone");
 
-    this.setState({ errors, loading: false });
+    setSignUpForm({ ...signUpForm, errors, loading: false });
 
     if (!errors.length) {
+      // firebaseContext
+      //   .doCreateUserWithEmailAndPassword(email, password)
+      //   .then((snapshot) => {
+      //     const uid = snapshot.user.uid;
+      //     firebaseContext.refDoctors().child(uid).set({
+      //       counter: 0,
+      //       email,
+      //       name,
+      //       phone,
+      //     });
+      //   });
       Alert.alert(
         "Success!",
         "Your account has been created",
@@ -44,83 +58,91 @@ export default class SignUp extends Component {
           {
             text: "Continue",
             onPress: () => {
-              navigation.navigate("Browse");
+              navigation.navigate("Login");
             },
           },
         ],
         { cancelable: false }
       );
     }
-  }
+  };
 
-  render() {
-    const { navigation } = this.props;
-    const { loading, errors } = this.state;
-    const hasErrors = (key) => (errors.includes(key) ? styles.hasErrors : null);
+  const { loading, errors } = signUpForm;
+  const hasErrors = (key) => (errors.includes(key) ? styles.hasErrors : null);
 
-    return (
-      <KeyboardAvoidingView style={styles.signup} behavior="height">
-        <Block padding={[0, theme.sizes.base * 2]}>
-          <Text h1 bold>
-            Sign Up
-          </Text>
-          <Block middle>
-            <Input
-              email
-              label="Email"
-              error={hasErrors("email")}
-              style={[styles.input, hasErrors("email")]}
-              defaultValue={this.state.email}
-              onChangeText={(text) => this.setState({ email: text })}
-            />
-            <Input
-              label="Username"
-              error={hasErrors("username")}
-              style={[styles.input, hasErrors("username")]}
-              defaultValue={this.state.username}
-              onChangeText={(text) => this.setState({ username: text })}
-            />
-            <Input
-              label="No Hp"
-              error={hasErrors("phone")}
-              style={[styles.input, hasErrors("phone")]}
-              defaultValue={this.state.phone}
-              onChangeText={(text) => this.setState({ phone: text })}
-            />
-            <Input
-              secure
-              label="Password"
-              error={hasErrors("password")}
-              style={[styles.input, hasErrors("password")]}
-              defaultValue={this.state.password}
-              onChangeText={(text) => this.setState({ password: text })}
-            />
-            <Button gradient onPress={() => this.handleSignUp()}>
-              {loading ? (
-                <ActivityIndicator size="small" color="white" />
-              ) : (
-                <Text bold white center>
-                  Sign Up
-                </Text>
-              )}
-            </Button>
-
-            <Button onPress={() => navigation.navigate("Login")}>
-              <Text
-                gray
-                caption
-                center
-                style={{ textDecorationLine: "underline" }}
-              >
-                Back to Login
+  return (
+    <KeyboardAvoidingView style={styles.signup} behavior="height">
+      <Block padding={[0, theme.sizes.base * 2]}>
+        <Text h1 bold>
+          Sign Up
+        </Text>
+        <Block middle>
+          <Input
+            email
+            label="Email"
+            error={hasErrors("email")}
+            style={[styles.input, hasErrors("email")]}
+            defaultValue={signUpForm.email}
+            onChangeText={(text) =>
+              setSignUpForm({ ...signUpForm, email: text })
+            }
+          />
+          <Input
+            label="Name"
+            error={hasErrors("name")}
+            style={[styles.input, hasErrors("name")]}
+            defaultValue={signUpForm.name}
+            onChangeText={(text) =>
+              setSignUpForm({ ...signUpForm, name: text })
+            }
+          />
+          <Input
+            phone
+            label="No Hp"
+            error={hasErrors("phone")}
+            style={[styles.input, hasErrors("phone")]}
+            defaultValue={signUpForm.phone}
+            onChangeText={(text) =>
+              setSignUpForm({ ...signUpForm, phone: text })
+            }
+          />
+          <Input
+            secure
+            label="Password"
+            error={hasErrors("password")}
+            style={[styles.input, hasErrors("password")]}
+            defaultValue={signUpForm.password}
+            onChangeText={(text) =>
+              setSignUpForm({ ...signUpForm, password: text })
+            }
+          />
+          <Button gradient onPress={handleSignUp}>
+            {loading ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <Text bold white center>
+                Sign Up
               </Text>
-            </Button>
-          </Block>
+            )}
+          </Button>
+
+          <Button onPress={() => navigation.navigate("Login")}>
+            <Text
+              gray
+              caption
+              center
+              style={{ textDecorationLine: "underline" }}
+            >
+              Back to Login
+            </Text>
+          </Button>
         </Block>
-      </KeyboardAvoidingView>
-    );
-  }
+      </Block>
+    </KeyboardAvoidingView>
+  );
 }
+
+export default SignUp;
 
 const styles = StyleSheet.create({
   signup: {

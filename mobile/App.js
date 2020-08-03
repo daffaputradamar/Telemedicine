@@ -1,11 +1,12 @@
-import React from "react";
-import { StyleSheet } from "react-native";
+import React, { useState } from "react";
 
 import { AppLoading } from "expo";
 import { Asset } from "expo-asset";
 
-import Navigation from "./navigation";
+import Firebase, { FirebaseContext } from "./components/Firebase";
+
 import { Block } from "./components";
+import AppChild from "./AppChild";
 
 // import all used images
 const images = [
@@ -14,39 +15,34 @@ const images = [
   require("./assets/images/profile.png"),
 ];
 
-export default class App extends React.Component {
-  state = {
-    isLoadingComplete: false,
-  };
+function App(props) {
+  const [isLoadingComplete, setIsLoadingComplete] = useState(false);
 
   handleResourcesAsync = async () => {
-    // we're caching all the images
-    // for better performance on the app
-
     const cacheImages = images.map((image) => {
       return Asset.fromModule(image).downloadAsync();
     });
 
-    return Promise.all(cacheImages);
+    return Promise.all([...cacheImages]);
   };
 
-  render() {
-    if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
-      return (
-        <AppLoading
-          startAsync={this.handleResourcesAsync}
-          onError={(error) => console.warn(error)}
-          onFinish={() => this.setState({ isLoadingComplete: true })}
-        />
-      );
-    }
-
+  if (!isLoadingComplete && !props.skipLoadingScreen) {
     return (
-      <Block white>
-        <Navigation />
-      </Block>
+      <AppLoading
+        startAsync={this.handleResourcesAsync}
+        onError={(error) => console.warn(error)}
+        onFinish={() => setIsLoadingComplete(true)}
+      />
     );
   }
+  return (
+    <FirebaseContext.Provider value={new Firebase()}>
+      <Block white>
+        <AppChild />
+        {/* {isAuthenticated ? <PrivateRoutes /> : <PublicRoutes />} */}
+      </Block>
+    </FirebaseContext.Provider>
+  );
 }
 
-const styles = StyleSheet.create({});
+export default App;
