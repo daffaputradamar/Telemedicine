@@ -24,14 +24,13 @@ function Login(props) {
   const firebaseContext = useContext(FirebaseContext);
 
   const [formLogin, setFormLogin] = useState({ ...INITIAL_STATE });
+  const { navigation } = props;
 
   handleLogin = () => {
-    const { navigation } = props;
     const { email, password } = formLogin;
     const errors = [];
 
     Keyboard.dismiss();
-    setFormLogin({ ...formLogin, loading: true });
 
     // check with backend API or with some static data
     if (email == "") {
@@ -41,21 +40,28 @@ function Login(props) {
       errors.push("password");
     }
 
-    setFormLogin({ errors });
+    setFormLogin({ ...formLogin, errors });
 
     if (!errors.length) {
+      setFormLogin({ ...formLogin, loading: true });
       firebaseContext
         .doSignInWithEmailAndPassword(formLogin.email, formLogin.password)
-        .then(() => {
-          setFormLogin({ ...INITIAL_STATE });
+        .then(async (snapshot) => {
+          if (!snapshot.user.emailVerified) {
+            firebaseContext.doSignOut();
+            setFormLogin({
+              ...formLogin,
+              errMessage: "Email has not been verified",
+            });
+          }
         })
-        .catch((err) => setFormLogin({ ...formLogin, errMessage: err }));
+        .catch((err) =>
+          setFormLogin({ ...formLogin, errMessage: err.message })
+        );
     }
   };
-
-  const { navigation } = props;
-  const { loading, errors } = formLogin;
-  const hasErrors = (key) => (errors.includes(key) ? styles.hasErrors : null);
+  const hasErrors = (key) =>
+    formLogin.errors.includes(key) ? styles.hasErrors : null;
 
   return (
     <KeyboardAvoidingView style={styles.login} behavior="height">
@@ -64,6 +70,9 @@ function Login(props) {
           Login
         </Text>
         <Block middle>
+          {formLogin.errMessage !== "" && (
+            <Text color={theme.colors.accent}>{formLogin.errMessage}</Text>
+          )}
           <Input
             label="Email"
             email
@@ -83,7 +92,7 @@ function Login(props) {
             }
           />
           <Button gradient onPress={() => handleLogin()}>
-            {loading ? (
+            {formLogin.loading ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
               <Text bold white center>

@@ -8,12 +8,14 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-import { Divider, Button, Block, Text, Switch } from "../components";
+import { Divider, Button, Block, Text } from "../components";
 import { theme, mocks } from "../constants";
 import { FirebaseContext } from "../components/Firebase";
+import { AuthUserContext } from "../components/Session";
 
 function Settings(props) {
   const firebaseContext = useContext(FirebaseContext);
+  const authUserContext = useContext(AuthUserContext);
 
   const [editing, setEditing] = useState(null);
   const [profile, setProfile] = useState({});
@@ -21,7 +23,15 @@ function Settings(props) {
   const { navigation } = props;
 
   useEffect(() => {
-    setProfile(mocks.profile);
+    const getUser = async () => {
+      const snapshot = await firebaseContext
+        .refDoctors()
+        .child(authUserContext.uid)
+        .once("value");
+      setProfile(snapshot.val());
+    };
+
+    getUser();
   }, []);
 
   const handleEdit = (name, text) => {
@@ -31,7 +41,17 @@ function Settings(props) {
   };
 
   const toggleEdit = (name) => {
-    setEditing(!editing ? name : null);
+    const newProfile = { ...profile };
+    const _editVal = !editing ? name : null;
+    if (!_editVal) {
+      firebaseContext
+        .refDoctors()
+        .child(authUserContext.uid)
+        .update({
+          ...newProfile,
+        });
+    }
+    setEditing(_editVal);
   };
 
   const renderEdit = (name) => {
@@ -71,12 +91,12 @@ function Settings(props) {
           <Block row space="between" margin={[10, 0]} style={styles.inputRow}>
             <Block>
               <Text gray2 style={{ marginBottom: 10 }}>
-                Username
+                Nama
               </Text>
-              {renderEdit("username")}
+              {renderEdit("name")}
             </Block>
-            <Text medium secondary onPress={() => toggleEdit("username")}>
-              {editing === "username" ? "Save" : "Edit"}
+            <Text medium secondary onPress={() => toggleEdit("name")}>
+              {editing === "name" ? "Save" : "Edit"}
             </Text>
           </Block>
           <Block row space="between" margin={[10, 0]} style={styles.inputRow}>

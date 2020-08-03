@@ -40,30 +40,37 @@ function SignUp({ navigation }) {
     setSignUpForm({ ...signUpForm, errors, loading: false });
 
     if (!errors.length) {
-      // firebaseContext
-      //   .doCreateUserWithEmailAndPassword(email, password)
-      //   .then((snapshot) => {
-      //     const uid = snapshot.user.uid;
-      //     firebaseContext.refDoctors().child(uid).set({
-      //       counter: 0,
-      //       email,
-      //       name,
-      //       phone,
-      //     });
-      //   });
-      Alert.alert(
-        "Success!",
-        "Your account has been created",
-        [
-          {
-            text: "Continue",
-            onPress: () => {
-              navigation.navigate("Login");
-            },
-          },
-        ],
-        { cancelable: false }
-      );
+      firebaseContext
+        .doCreateUserWithEmailAndPassword(email, password)
+        .then((snapshot) => {
+          if (!snapshot.user.emailVerified) {
+            firebaseContext.doSignOut();
+            setSignUpForm({
+              ...INITIAL_STATE,
+            });
+            firebaseContext.refDoctors().child(snapshot.user.uid).set({
+              counter: 0,
+              email,
+              name,
+              phone,
+            });
+            snapshot.user.sendEmailVerification().then(() => {
+              Alert.alert(
+                "Sukses",
+                "Akun selesai dibuat. Silahkan verifikasi melalui email yang didaftarkan",
+                [
+                  {
+                    text: "Continue",
+                    onPress: () => {
+                      navigation.navigate("Login");
+                    },
+                  },
+                ],
+                { cancelable: false }
+              );
+            });
+          }
+        });
     }
   };
 
