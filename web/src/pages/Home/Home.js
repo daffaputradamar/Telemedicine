@@ -25,8 +25,9 @@ function Home() {
   const [loadingDocuments, setloadingDocuments] = useState(false);
 
   useEffect(() => {
+    let doctorsListener, docsListener;
     const fetchDoctors = () => {
-      firebaseContext.refDoctors().on("value", (snapshot) => {
+      doctorsListener = firebaseContext.refDoctors().on("value", (snapshot) => {
         const val = snapshot.val();
         const doctorList = Object.keys(val).map((key) => ({
           uid: key,
@@ -38,7 +39,7 @@ function Home() {
 
     const fetchDocs = () => {
       setloadingDocuments(true);
-      firebaseContext.refDocs().on("value", (snapshot) => {
+      docsListener = firebaseContext.refDocs().on("value", (snapshot) => {
         const val = snapshot.val();
         if (val) {
           let documentList = Object.keys(val).map((key) => ({
@@ -54,11 +55,16 @@ function Home() {
 
     fetchDoctors();
     fetchDocs();
+
+    return function cleanup() {
+      firebaseContext.refDoctors().off("value", doctorsListener);
+      firebaseContext.refDocs().off("value", docsListener);
+    };
   }, [firebaseContext]);
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (!pdfFile || !selectedDoctors) {
+    if (!pdfFile || !selectedDoctors || selectedDoctors.length === 0) {
       console.error("No file was uploaded");
     } else {
       const formattedName = `${fileNameDate()}_${pdfFile.name}`;

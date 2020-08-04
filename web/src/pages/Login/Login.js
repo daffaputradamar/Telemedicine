@@ -68,7 +68,6 @@ function Login(props) {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log(firebaseContext);
     firebaseContext
       .doSignInWithEmailAndPassword(loginForm.email, loginForm.password)
       .then(() => {

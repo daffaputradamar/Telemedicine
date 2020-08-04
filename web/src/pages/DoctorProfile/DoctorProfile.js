@@ -27,6 +27,7 @@ function DoctorProfile(props) {
   const [docsSum, setDocsSum] = useState(0);
 
   useEffect(() => {
+    let userToDocsListener;
     const fetchDoctorDetail = () => {
       firebaseContext
         .refDoctors()
@@ -36,34 +37,39 @@ function DoctorProfile(props) {
         });
     };
     const fetchDocsByDoctor = () => {
-      const ref = firebaseContext.refUserToDocs(params.id);
-      ref.on("value", (snapshot) => {
-        const val = snapshot.val();
-        if (val) {
-          let docids = Object.keys(val);
-          Promise.all(
-            docids.map(async (id) => {
-              const valDoc = (
-                await firebaseContext.refDocs().child(id).once("value")
-              ).val();
-              return { docid: id, ...valDoc };
-            })
-          ).then((result) => {
-            const _docs = result.map((res) => {
-              return {
-                ...res,
-                reply: val[res.docid],
-              };
+      userToDocsListener = firebaseContext
+        .refUserToDocs(params.id)
+        .on("value", (snapshot) => {
+          const val = snapshot.val();
+          if (val) {
+            let docids = Object.keys(val);
+            Promise.all(
+              docids.map(async (id) => {
+                const valDoc = (
+                  await firebaseContext.refDocs().child(id).once("value")
+                ).val();
+                return { docid: id, ...valDoc };
+              })
+            ).then((result) => {
+              const _docs = result.map((res) => {
+                return {
+                  ...res,
+                  reply: val[res.docid],
+                };
+              });
+              setDocsSum(_docs.length);
+              setDocs(_docs.reverse());
             });
-            setDocsSum(_docs.length);
-            setDocs(_docs.reverse());
-          });
-        }
-      });
+          }
+        });
     };
 
     fetchDoctorDetail();
     fetchDocsByDoctor();
+
+    return function cleanup() {
+      firebaseContext.refUserToDocs(params.id).off("value", userToDocsListener);
+    };
   }, [firebaseContext, params.id]);
 
   return (

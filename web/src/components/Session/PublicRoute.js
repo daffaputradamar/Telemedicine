@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Route, Redirect } from "react-router-dom";
-import AuthUserContext from "./contex";
+import AuthUserContext from "./context";
 
 const condition = (authUser) => !authUser;
 

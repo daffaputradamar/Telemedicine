@@ -27,6 +27,7 @@ function DocumentDetails(props) {
   const [doctors, setDoctors] = useState(null);
 
   useEffect(() => {
+    let docToUsersListener;
     const fetchDocDetail = () => {
       firebaseContext
         .refDocs()
@@ -37,33 +38,38 @@ function DocumentDetails(props) {
     };
 
     const fetchDoctorsByDoc = () => {
-      const ref = firebaseContext.refDocToUsers(params.id);
-      ref.on("value", (snapshot) => {
-        const val = snapshot.val();
-        if (val) {
-          let uids = Object.keys(val);
-          Promise.all(
-            uids.map(async (id) => {
-              const valUser = (
-                await firebaseContext.refDoctors().child(id).once("value")
-              ).val();
-              return { uid: id, ...valUser };
-            })
-          ).then((result) => {
-            const _doctors = result.map((res) => {
-              return {
-                ...res,
-                reply: val[res.uid],
-              };
+      docToUsersListener = firebaseContext
+        .refDocToUsers(params.id)
+        .on("value", (snapshot) => {
+          const val = snapshot.val();
+          if (val) {
+            let uids = Object.keys(val);
+            Promise.all(
+              uids.map(async (id) => {
+                const valUser = (
+                  await firebaseContext.refDoctors().child(id).once("value")
+                ).val();
+                return { uid: id, ...valUser };
+              })
+            ).then((result) => {
+              const _doctors = result.map((res) => {
+                return {
+                  ...res,
+                  reply: val[res.uid],
+                };
+              });
+              setDoctors(_doctors);
             });
-            setDoctors(_doctors);
-          });
-        }
-      });
+          }
+        });
     };
 
     fetchDocDetail();
     fetchDoctorsByDoc();
+
+    return function cleanup() {
+      firebaseContext.refDocToUsers(params.id).off("value", docToUsersListener);
+    };
   }, [firebaseContext, params.id]);
 
   return (

@@ -11,6 +11,7 @@ function DoctorList() {
   const [selected, setSelected] = useState([]);
 
   useEffect(() => {
+    let doctorListener;
     const fetchDoctors = () => {
       firebaseContext.refDoctors().on("value", (snapshot) => {
         const val = snapshot.val();
@@ -22,6 +23,10 @@ function DoctorList() {
       });
     };
     fetchDoctors();
+
+    return function cleanup() {
+      firebaseContext.refDoctors().off("value", doctorListener);
+    };
   }, [firebaseContext]);
 
   const deleteDoctor = () => {
