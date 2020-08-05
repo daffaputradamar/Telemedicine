@@ -9,8 +9,10 @@ import {
   ToastAndroid,
   Keyboard,
   KeyboardAvoidingView,
+  AsyncStorage,
 } from "react-native";
-
+import * as FileSystem from "expo-file-system";
+import * as IntentLauncher from "expo-intent-launcher";
 import {
   Card,
   Badge,
@@ -95,6 +97,52 @@ function DocDetail(props) {
         .off("value", docDetailListener);
     };
   }, []);
+
+  const downloadFile = async (url, filename) => {
+    try {
+      const folderInfo = await FileSystem.getInfoAsync(
+        FileSystem.documentDirectory + "telemedicine"
+      );
+
+      let folder;
+      if (!folderInfo.isExist) {
+        folder = FileSystem.documentDirectory + "telemedicine";
+        await FileSystem.makeDirectoryAsync(folder, {
+          intermediates: true,
+        });
+      }
+
+      const fileInfo = await FileSystem.getInfoAsync(
+        FileSystem.documentDirectory + "telemedicine/" + filename
+      );
+
+      if (fileInfo.isExist) {
+        FileSystem.getContentUriAsync(fileInfo.uri).then((cUri) => {
+          IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
+            data: cUri.uri,
+            flags: 1,
+            type: "application/pdf",
+          });
+        });
+      } else {
+        const downloadResumable = FileSystem.createDownloadResumable(
+          url,
+          `${FileSystem.documentDirectory}telemedicine/${filename}`,
+          {}
+        );
+        const { uri } = await downloadResumable.downloadAsync();
+        FileSystem.getContentUriAsync(uri).then((cUri) => {
+          IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
+            data: cUri.uri,
+            flags: 1,
+            type: "application/pdf",
+          });
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   if (loadingDocument || loading) {
     return <SplashScreen />;
@@ -201,7 +249,7 @@ function DocDetail(props) {
         <Block flex={false} row space="between" style={styles.documents}>
           <TouchableOpacity
             style={{ marginBottom: theme.sizes.padding }}
-            onPress={() => Alert.alert("Download")}
+            onPress={() => downloadFile(document.url, document.filename)}
           >
             <Card row shadow style={styles.document}>
               <Badge size={35} color={theme.colors.tertiary}>
