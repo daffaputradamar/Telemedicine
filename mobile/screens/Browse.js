@@ -1,4 +1,8 @@
 import React, { Component, useState, useEffect, useContext } from "react";
+import * as Permissions from "expo-permissions";
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
+
 import {
   Dimensions,
   Image,
@@ -29,6 +33,55 @@ function Browse({ navigation, documentsMock }) {
     let userToDocsListener;
     setLoading(true);
 
+    const registerForPushNotificationsAsync = async () => {
+      if (Constants.isDevice) {
+        const { status: existingStatus } = await Permissions.getAsync(
+          Permissions.NOTIFICATIONS
+        );
+        let finalStatus = existingStatus;
+
+        // only ask if permissions have not already been determined, because
+        // iOS won't necessarily prompt the user a second time.
+        if (existingStatus !== "granted") {
+          // Android remote notification permissions are granted during the app
+          // install, so this will only ask on iOS
+          const { status } = await Permissions.askAsync(
+            Permissions.NOTIFICATIONS
+          );
+          finalStatus = status;
+        }
+
+        // Stop here if the user did not grant permissions
+        if (finalStatus !== "granted") {
+          return;
+        }
+
+        try {
+          // Get the token that uniquely identifies this device
+          let token = (await Notifications.getExpoPushTokenAsync()).data;
+
+          ToastAndroid.show(token, ToastAndroid.SHORT);
+
+          firebaseContext
+            .refDoctors()
+            .child(authUserContext.uid)
+            .child("push_token")
+            .set(token);
+
+          if (Platform.OS === "android") {
+            Notifications.setNotificationChannelAsync("default", {
+              name: "default",
+              importance: Notifications.AndroidImportance.MAX,
+              vibrationPattern: [0, 250, 250, 250],
+              lightColor: "#FF231F7C",
+            });
+          }
+        } catch (error) {
+          ToastAndroid.show("Error Notification", ToastAndroid.SHORT);
+        }
+      }
+    };
+
     const fetchDocsByDoctor = () => {
       userToDocsListener = firebaseContext
         .refUserToDocs(authUserContext.uid)
@@ -58,6 +111,7 @@ function Browse({ navigation, documentsMock }) {
     };
 
     fetchDocsByDoctor();
+    registerForPushNotificationsAsync();
 
     return function cleanup() {
       firebaseContext
