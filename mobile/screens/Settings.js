@@ -69,7 +69,7 @@ function Settings(props) {
 
   const handleLogout = () => {
     setLoading(true);
-    firebaseContext.doSignOut();
+    firebaseContext.doSignOut(authUserContext.uid);
   };
 
   return (

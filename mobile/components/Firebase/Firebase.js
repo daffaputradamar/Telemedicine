@@ -58,7 +58,16 @@ class Firebase {
   doCreateUserWithEmailAndPassword = (email, password) =>
     this.auth.createUserWithEmailAndPassword(email, password);
 
-  doSignOut = () => this.auth.signOut();
+  doSignOut = (uid) => {
+    this.database
+      .ref()
+      .update({
+        [`users/${uid}/push_token`]: null,
+      })
+      .then((_) => {
+        this.auth.signOut();
+      });
+  };
 }
 
 export default Firebase;
