@@ -22,7 +22,6 @@
     },
     "android": {
       "package": "com.telemedicine.telemedicine",
-      "useNextNotificationsApi": true,
       "versionCode": 1
     }
   }

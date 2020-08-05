@@ -1,6 +1,7 @@
 import React, { Component, useState, useEffect, useContext } from "react";
 import * as Permissions from "expo-permissions";
-import * as Notifications from "expo-notifications";
+// import * as Notifications from "expo-notifications";
+import { Notifications } from "expo";
 import Constants from "expo-constants";
 
 import {
@@ -58,9 +59,7 @@ function Browse({ navigation, documentsMock }) {
 
         try {
           // Get the token that uniquely identifies this device
-          let token = (await Notifications.getExpoPushTokenAsync()).data;
-
-          ToastAndroid.show(token, ToastAndroid.SHORT);
+          let token = await Notifications.getExpoPushTokenAsync();
 
           firebaseContext
             .refDoctors()
@@ -77,7 +76,7 @@ function Browse({ navigation, documentsMock }) {
             });
           }
         } catch (error) {
-          ToastAndroid.show("Error Notification", ToastAndroid.SHORT);
+          console.log(error.message);
         }
       }
     };
@@ -106,6 +105,8 @@ function Browse({ navigation, documentsMock }) {
               setDocuments(_docs.reverse());
               setLoading(false);
             });
+          } else {
+            setLoading(false);
           }
         });
     };
@@ -141,37 +142,43 @@ function Browse({ navigation, documentsMock }) {
         showsVerticalScrollIndicator={false}
         style={{ paddingVertical: theme.sizes.base * 2 }}
       >
-        <Block flex={false} row space="between" style={styles.documents}>
-          {documents.map((document) => (
-            <TouchableOpacity
-              key={document.docid}
-              onPress={() =>
-                navigation.navigate("DocDetail", { docid: document.docid })
-              }
-            >
-              <Card center middle row shadow style={styles.document}>
-                <Block row center>
-                  <Badge size={25} color={theme.colors.tertiary}>
-                    <Image
-                      source={require("../assets/icons/doc.png")}
-                      style={styles.docIcon}
-                    />
-                  </Badge>
-                  <Text
-                    medium
-                    height={20}
-                    style={{ marginLeft: theme.sizes.base }}
-                  >
-                    {trim(document.filename)}
+        {!documents.length ? (
+          <Block center>
+            <Text>Dokumen tidak ditemukan</Text>
+          </Block>
+        ) : (
+          <Block flex={false} row space="between" style={styles.documents}>
+            {documents.map((document) => (
+              <TouchableOpacity
+                key={document.docid}
+                onPress={() =>
+                  navigation.navigate("DocDetail", { docid: document.docid })
+                }
+              >
+                <Card center middle row shadow style={styles.document}>
+                  <Block row center>
+                    <Badge size={25} color={theme.colors.tertiary}>
+                      <Image
+                        source={require("../assets/icons/doc.png")}
+                        style={styles.docIcon}
+                      />
+                    </Badge>
+                    <Text
+                      medium
+                      height={20}
+                      style={{ marginLeft: theme.sizes.base }}
+                    >
+                      {trim(document.filename)}
+                    </Text>
+                  </Block>
+                  <Text gray caption>
+                    {timeConverter(document.timestamp)}
                   </Text>
-                </Block>
-                <Text gray caption>
-                  {timeConverter(document.timestamp)}
-                </Text>
-              </Card>
-            </TouchableOpacity>
-          ))}
-        </Block>
+                </Card>
+              </TouchableOpacity>
+            ))}
+          </Block>
+        )}
       </ScrollView>
     </Block>
   );
