@@ -74,7 +74,7 @@ function Browse({ navigation, documentsMock }) {
     <Block>
       <Block flex={false} row center space="between" style={styles.header}>
         <Text h1 bold>
-          Browse
+          Dokumen
         </Text>
         <Button onPress={() => navigation.navigate("Settings")}>
           <Image

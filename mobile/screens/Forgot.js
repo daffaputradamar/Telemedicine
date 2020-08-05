@@ -67,7 +67,7 @@ function Forgot(props) {
     <KeyboardAvoidingView style={styles.forgot} behavior="padding">
       <Block padding={[0, theme.sizes.base * 2]}>
         <Text h1 bold>
-          Forgot
+          Lupa Password
         </Text>
         <Block middle>
           <Input

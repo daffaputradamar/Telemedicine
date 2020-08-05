@@ -76,7 +76,7 @@ function Settings(props) {
     <Block>
       <Block flex={false} row center space="between" style={styles.header}>
         <Text h1 bold>
-          Settings
+          Profil
         </Text>
         <Button>
           <Image
@@ -118,6 +118,13 @@ function Settings(props) {
               <Text bold>{profile.email}</Text>
             </Block>
           </Block>
+        </Block>
+        <Block>
+          <Button shadow onPress={() => navigation.navigate("ChangePassword")}>
+            <Text center semibold>
+              Ganti Password
+            </Text>
+          </Button>
         </Block>
 
         <Divider margin={[theme.sizes.base, theme.sizes.base * 2]} />

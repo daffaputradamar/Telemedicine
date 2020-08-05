@@ -6,6 +6,7 @@ import { createStackNavigator } from "react-navigation-stack";
 import Browse from "../screens/Browse";
 import Settings from "../screens/Settings";
 import DocDetail from "../screens/DocDetail";
+import ChangePassword from "../screens/ChangePassword";
 
 import { theme } from "../constants";
 
@@ -14,6 +15,7 @@ const screens = createStackNavigator(
     Browse,
     DocDetail,
     Settings,
+    ChangePassword,
   },
   {
     defaultNavigationOptions: {
