@@ -16,10 +16,25 @@ function AppChild() {
   useEffect(() => {
     setLoadingAuth(true);
     listener = firebaseContext.auth.onAuthStateChanged((authUser) => {
-      authUser && authUser.emailVerified
-        ? setAuthUser(authUser)
-        : setAuthUser(null);
-      setLoadingAuth(false);
+      if (authUser && authUser.emailVerified) {
+        firebaseContext
+          .refDoctors()
+          .child(authUser.uid)
+          .on("value", (snapshot) => {
+            const val = snapshot.val();
+            if (val) {
+              const newUser = { ...authUser, ...val };
+              setAuthUser(newUser);
+              setLoadingAuth(false);
+            } else {
+              setAuthUser(null);
+              setLoadingAuth(false);
+            }
+          });
+      } else {
+        setAuthUser(null);
+        setLoadingAuth(false);
+      }
     });
 
     return function cleanup() {

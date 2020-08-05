@@ -27,6 +27,27 @@ class Firebase {
   refDocs = () => this.database.ref("/documents");
   refUserToDocs = (uid) => this.database.ref("/user_document").child(uid);
 
+  doUpdateReply = async (uid, docId, reply, isReplied, counter) => {
+    const updateObject = {
+      [`user_document/${uid}/${docId}`]: {
+        reply: reply,
+        isReplied: true,
+        timestamp: Date.now(),
+      },
+      [`document_user/${docId}/${uid}`]: {
+        reply: reply,
+        isReplied: true,
+        timestamp: Date.now(),
+      },
+    };
+
+    if (!isReplied) {
+      updateObject[`users/${uid}/counter`] = counter + 1;
+    }
+
+    await this.database.ref().update(updateObject);
+  };
+
   //Storage
   getDocsUrl = (filename) => this.storage.ref("file").child(filename);
 

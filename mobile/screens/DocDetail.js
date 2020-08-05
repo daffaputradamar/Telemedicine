@@ -8,6 +8,7 @@ import {
   Alert,
   ToastAndroid,
   Keyboard,
+  KeyboardAvoidingView,
 } from "react-native";
 
 import {
@@ -47,18 +48,13 @@ function DocDetail(props) {
 
   const saveReply = async () => {
     Keyboard.dismiss();
-    await firebaseContext.database.ref().update({
-      [`user_document/${authUserContext.uid}/${docId}`]: {
-        reply: input.inputReply,
-        isReplied: true,
-        timestamp: Date.now(),
-      },
-      [`document_user/${docId}/${authUserContext.uid}`]: {
-        reply: input.inputReply,
-        isReplied: true,
-        timestamp: Date.now(),
-      },
-    });
+    await firebaseContext.doUpdateReply(
+      authUserContext.uid,
+      docId,
+      input.inputReply,
+      reply.isReplied,
+      authUserContext.counter
+    );
     setInput({ ...input, isEditing: false });
   };
 
@@ -96,7 +92,7 @@ function DocDetail(props) {
       firebaseContext
         .refUserToDocs(authUserContext.uid)
         .child(docId)
-        .on("value", docDetailListener);
+        .off("value", docDetailListener);
     };
   }, []);
 
@@ -109,38 +105,50 @@ function DocDetail(props) {
     const hasErrors = (key) => (errors.includes(key) ? styles.hasErrors : null);
 
     return (
-      <Block padding={[0, theme.sizes.base * 2]}>
-        <Block>
-          <Block middle>
-            <Input
-              autoFocus
-              label="Tanggapan"
-              error={hasErrors("inputReply")}
-              multiline
-              numberOfLines={5}
-              style={[styles.input, hasErrors("inputReply")]}
-              underlineColorAndroid="transparent"
-              defaultValue={input.inputReply}
-              onChangeText={(text) => setInput({ ...input, inputReply: text })}
-            />
-          </Block>
-          <Block middle flex={0.5} right margin={[0, theme.sizes.padding * 2]}>
-            <Button gradient onPress={() => saveReply()}>
-              <Text center semibold white>
-                Simpan
-              </Text>
-            </Button>
-            <Button
-              shadow
-              onPress={() => setInput({ ...input, isEditing: false })}
+      <KeyboardAvoidingView
+        style={{ flex: 1, justifyContent: "center" }}
+        behavior="height"
+      >
+        <Block padding={[0, theme.sizes.base * 2]}>
+          <Block>
+            <Block middle>
+              <Input
+                autoFocus
+                label="Tanggapan"
+                error={hasErrors("inputReply")}
+                multiline
+                numberOfLines={5}
+                style={[styles.input, hasErrors("inputReply")]}
+                underlineColorAndroid="transparent"
+                defaultValue={input.inputReply}
+                onChangeText={(text) =>
+                  setInput({ ...input, inputReply: text })
+                }
+              />
+            </Block>
+            <Block
+              middle
+              flex={0.5}
+              right
+              margin={[0, theme.sizes.padding * 2]}
             >
-              <Text center semibold>
-                Batal
-              </Text>
-            </Button>
+              <Button gradient onPress={() => saveReply()}>
+                <Text center semibold white>
+                  Simpan
+                </Text>
+              </Button>
+              <Button
+                shadow
+                onPress={() => setInput({ ...input, isEditing: false })}
+              >
+                <Text center semibold>
+                  Batal
+                </Text>
+              </Button>
+            </Block>
           </Block>
         </Block>
-      </Block>
+      </KeyboardAvoidingView>
     );
   };
 
