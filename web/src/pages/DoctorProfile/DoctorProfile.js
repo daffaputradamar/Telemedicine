@@ -28,11 +28,12 @@ function DoctorProfile(props) {
 
   useEffect(() => {
     let userToDocsListener;
+    let userListener;
     const fetchDoctorDetail = () => {
-      firebaseContext
+      userListener = firebaseContext
         .refDoctors()
         .child(params.id)
-        .once("value", (snapshot) => {
+        .on("value", (snapshot) => {
           setDoctorDetail(snapshot.val());
         });
     };
@@ -69,6 +70,7 @@ function DoctorProfile(props) {
 
     return function cleanup() {
       firebaseContext.refUserToDocs(params.id).off("value", userToDocsListener);
+      firebaseContext.refDoctors().child(params.id).off("value", userListener);
     };
   }, [firebaseContext, params.id]);
 

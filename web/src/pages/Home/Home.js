@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext, Fragment } from "react";
 import MyDropzone from "./MyDropzone";
+// import axios from "axios";
 import { FirebaseContext } from "../../components/Firebase";
 import { fileNameDate } from "../../lib/timeConverter";
 import {
@@ -23,6 +24,8 @@ function Home() {
 
   const [documents, setDocuments] = useState([]);
   const [loadingDocuments, setloadingDocuments] = useState(false);
+
+  const [loadingUpload, setLoadingUpload] = useState(false);
 
   useEffect(() => {
     let doctorsListener, docsListener;
@@ -62,8 +65,24 @@ function Home() {
     };
   }, [firebaseContext]);
 
+  // const sendPushNotification = (body) => {
+  //   axios
+  //     .post("http://localhost:8080/sendNotif", body)
+  //     .then((res) => console.log(res))
+  //     .catch((err) => console.log(err));
+  //   // fetch("https://exp.host/--/api/v2/push/send", {
+  //   //   method: "POST",
+  //   //   headers: {
+  //   //     Accept: "application/json",
+  //   //     "Content-Type": "application/json",
+  //   //   },
+  //   //   body: JSON.stringify(body),
+  //   // })
+  // };
+
   const onSubmit = (e) => {
     e.preventDefault();
+    setLoadingUpload(true);
     if (!pdfFile || !selectedDoctors || selectedDoctors.length === 0) {
       console.error("No file was uploaded");
     } else {
@@ -87,12 +106,39 @@ function Home() {
           });
 
           const key = docSnapshot.key;
-          const _selectedDoctors = selectedDoctors;
+          const _selectedDoctors = [...selectedDoctors];
           _selectedDoctors.forEach((doctor) => {
             firebaseContext.doCreateUserDoc(doctor.value, key, "");
           });
+
+          // Promise.all(
+          //   _selectedDoctors.map(async (doctor) => {
+          //     return (
+          //       await firebaseContext
+          //         .refDoctors()
+          //         .child(doctor.value)
+          //         .once("value")
+          //     ).val();
+          //   })
+          // ).then((result) => {
+          //   const notifBody = result.reduce((prev, cur) => {
+          //     if (cur.push_token) {
+          //       const newObj = {
+          //         to: cur.push_token,
+          //         sound: "default",
+          //         title: "Dokumen Baru",
+          //         body: "Terdapat dokumen baru",
+          //       };
+          //       prev.push(newObj);
+          //     }
+          //     return prev;
+          //   }, []);
+          //   sendPushNotification(notifBody);
+          // });
+
           setPdfFile(null);
           setSelectedDoctors([]);
+          setLoadingUpload(false);
         }
       );
     }
@@ -126,7 +172,7 @@ function Home() {
                 />
                 <Box mt={2}>
                   <Button variant="contained" color="primary" type="submit">
-                    Kirim
+                    {loadingUpload ? "Sedang Mengirim" : "Kirim"}
                   </Button>
                 </Box>
               </Grid>
