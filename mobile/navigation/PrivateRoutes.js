@@ -7,6 +7,7 @@ import Browse from "../screens/Browse";
 import Settings from "../screens/Settings";
 import DocDetail from "../screens/DocDetail";
 import ChangePassword from "../screens/ChangePassword";
+import PDFView from "../screens/PDFView";
 
 import { theme } from "../constants";
 
@@ -16,6 +17,7 @@ const screens = createStackNavigator(
     DocDetail,
     Settings,
     ChangePassword,
+    PDFView,
   },
   {
     defaultNavigationOptions: {
