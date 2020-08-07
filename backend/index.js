@@ -50,4 +50,4 @@ app.post("/deleteUser", async (req, res) => {
   }
 });
 
-app.listen("8080", () => console.log("Server is listening"));
+app.listen(process.env.PORT || 8080, () => console.log("Server is listening"));
