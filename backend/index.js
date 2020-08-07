@@ -1,10 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
-const firebase = require("firebase");
 var admin = require("firebase-admin");
 
-var serviceAccount = require("./telermedicine-firebase-adminsdk-ai6cs-682a538ad7.json");
+var serviceAccount = require("./ecg-telemedicine-firebase-adminsdk-4pld0-1018b9cb87.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
