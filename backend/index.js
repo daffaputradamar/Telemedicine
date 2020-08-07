@@ -25,7 +25,13 @@ app.get("/", (req, res) => {
 
 app.post("/sendNotif", async (req, res) => {
   try {
-    await axios.post("https://exp.host/--/api/v2/push/send", req.body);
+    const tokenArr = req.body;
+    const chunk = 100;
+    let tempArr;
+    for (let i = 0, j = tokenArr.length; i < j; i += chunk) {
+      tempArr = tokenArr.slice(i, i + chunk);
+      await axios.post("https://exp.host/--/api/v2/push/send", tempArr);
+    }
     res.json({
       success: true,
     });
