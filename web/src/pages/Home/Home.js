@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, Fragment } from "react";
 import MyDropzone from "./MyDropzone";
-// import axios from "axios";
+import axios from "axios";
 import { FirebaseContext } from "../../components/Firebase";
 import { fileNameDate } from "../../lib/timeConverter";
 import {
@@ -11,9 +11,10 @@ import {
   CircularProgress,
   CssBaseline,
 } from "@material-ui/core";
-import SelectDoctors from "./SelectDoctors";
+import SelectDoctors from "../../components/SelectDoctors";
 import DocsList from "../../components/DocsList";
 import Navbar from "../../components/Navbar";
+import { url } from "../../config/api";
 
 function Home() {
   const firebaseContext = useContext(FirebaseContext);
@@ -32,11 +33,13 @@ function Home() {
     const fetchDoctors = () => {
       doctorsListener = firebaseContext.refDoctors().on("value", (snapshot) => {
         const val = snapshot.val();
-        const doctorList = Object.keys(val).map((key) => ({
-          uid: key,
-          ...val[key],
-        }));
-        setDoctors(doctorList);
+        if (val) {
+          const doctorList = Object.keys(val).map((key) => ({
+            uid: key,
+            ...val[key],
+          }));
+          setDoctors(doctorList);
+        }
       });
     };
 
@@ -65,82 +68,76 @@ function Home() {
     };
   }, [firebaseContext]);
 
-  // const sendPushNotification = (body) => {
-  //   axios
-  //     .post("http://localhost:8080/sendNotif", body)
-  //     .then((res) => console.log(res))
-  //     .catch((err) => console.log(err));
-  //   // fetch("https://exp.host/--/api/v2/push/send", {
-  //   //   method: "POST",
-  //   //   headers: {
-  //   //     Accept: "application/json",
-  //   //     "Content-Type": "application/json",
-  //   //   },
-  //   //   body: JSON.stringify(body),
-  //   // })
-  // };
+  const sendPushNotification = (body) => {
+    axios
+      .post(`${url}/sendNotif`, body)
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
+  };
 
   const onSubmit = (e) => {
     e.preventDefault();
-    setLoadingUpload(true);
-    if (!pdfFile || !selectedDoctors || selectedDoctors.length === 0) {
-      console.error("No file was uploaded");
-    } else {
-      const formattedName = `${fileNameDate()}_${pdfFile.name}`;
-      const uploadTask = firebaseContext.uploadDocs(pdfFile, formattedName);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {},
-        (err) => {
-          console.error(err);
-        },
-        async () => {
-          const firebaseUrl = await firebaseContext
-            .getDocsUrl(formattedName)
-            .getDownloadURL();
+    if (!loadingUpload) {
+      setLoadingUpload(true);
+      if (!pdfFile || !selectedDoctors || selectedDoctors.length === 0) {
+        console.error("No file was uploaded");
+      } else {
+        const formattedName = `${fileNameDate()}_${pdfFile.name}`;
+        const uploadTask = firebaseContext.uploadDocs(pdfFile, formattedName);
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {},
+          (err) => {
+            console.error(err);
+          },
+          async () => {
+            const firebaseUrl = await firebaseContext
+              .getDocsUrl(formattedName)
+              .getDownloadURL();
 
-          const docSnapshot = await firebaseContext.refDocs().push({
-            filename: formattedName,
-            url: firebaseUrl,
-            timestamp: Date.now(),
-          });
+            const docSnapshot = await firebaseContext.refDocs().push({
+              filename: formattedName,
+              url: firebaseUrl,
+              timestamp: Date.now(),
+            });
 
-          const key = docSnapshot.key;
-          const _selectedDoctors = [...selectedDoctors];
-          _selectedDoctors.forEach((doctor) => {
-            firebaseContext.doCreateUserDoc(doctor.value, key, "");
-          });
+            const key = docSnapshot.key;
+            const _selectedDoctors = [...selectedDoctors];
+            _selectedDoctors.forEach((doctor) => {
+              firebaseContext.doCreateUserDoc(doctor.value, key, "");
+            });
 
-          // Promise.all(
-          //   _selectedDoctors.map(async (doctor) => {
-          //     return (
-          //       await firebaseContext
-          //         .refDoctors()
-          //         .child(doctor.value)
-          //         .once("value")
-          //     ).val();
-          //   })
-          // ).then((result) => {
-          //   const notifBody = result.reduce((prev, cur) => {
-          //     if (cur.push_token) {
-          //       const newObj = {
-          //         to: cur.push_token,
-          //         sound: "default",
-          //         title: "Dokumen Baru",
-          //         body: "Terdapat dokumen baru",
-          //       };
-          //       prev.push(newObj);
-          //     }
-          //     return prev;
-          //   }, []);
-          //   sendPushNotification(notifBody);
-          // });
+            Promise.all(
+              _selectedDoctors.map(async (doctor) => {
+                return (
+                  await firebaseContext
+                    .refDoctors()
+                    .child(doctor.value)
+                    .once("value")
+                ).val();
+              })
+            ).then((result) => {
+              const notifBody = result.reduce((prev, cur) => {
+                if (cur.push_token) {
+                  const newObj = {
+                    to: cur.push_token,
+                    sound: "default",
+                    title: "Dokumen baru",
+                    body: "Terdapat dokumen baru",
+                  };
+                  prev.push(newObj);
+                }
+                return prev;
+              }, []);
+              sendPushNotification(notifBody);
+            });
 
-          setPdfFile(null);
-          setSelectedDoctors([]);
-          setLoadingUpload(false);
-        }
-      );
+            setPdfFile(null);
+            setSelectedDoctors([]);
+            setLoadingUpload(false);
+          }
+        );
+      }
     }
   };
 

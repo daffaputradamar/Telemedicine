@@ -3,15 +3,18 @@ import "firebase/auth";
 import "firebase/storage";
 import "firebase/database";
 
+import axios from "axios";
+import { url } from "../../config/api";
+
 const config = {
-  apiKey: "AIzaSyAZTljZeyPWHyvzvPn_yHNU4a4Hkhs0V8Q",
-  authDomain: "telermedicine.firebaseapp.com",
-  databaseURL: "https://telermedicine.firebaseio.com",
-  projectId: "telermedicine",
-  storageBucket: "telermedicine.appspot.com",
-  messagingSenderId: "146704387009",
-  appId: "1:146704387009:web:cbe1ac324c021f52833d40",
-  measurementId: "G-6SLWVZ8P47",
+  apiKey: "AIzaSyABQJ7ZSNKqYZs2cE3ZZNq8TOZ4_dixtbo",
+  authDomain: "ecg-telemedicine.firebaseapp.com",
+  databaseURL: "https://ecg-telemedicine.firebaseio.com",
+  projectId: "ecg-telemedicine",
+  storageBucket: "ecg-telemedicine.appspot.com",
+  messagingSenderId: "17663991798",
+  appId: "1:17663991798:web:a1a79a79370177c28131d7",
+  measurementId: "G-91S1YM65ZJ",
 };
 
 class Firebase {
@@ -44,27 +47,27 @@ class Firebase {
   };
 
   doDeleteDoctor = async (users) => {
+    console.log(users);
     users.forEach(async (user) => {
       const userNull = {
         [`users/${user}`]: null,
         [`user_document/${user}`]: null,
       };
-      const docIds = Object.keys(
-        (await this.refUserToDocs(user).once("value")).val()
-      );
-      const opts = docIds.reduce((prev, curr) => {
-        prev[`document_user/${curr}/${user}`] = null;
-        return prev;
-      }, {});
-      // console.log({
-      //   ...userNull,
-      //   ...opts,
-      // });
+      const docIds = (await this.refUserToDocs(user).once("value")).val();
+      let opts = null;
+      if (docIds) {
+        let docs = Object.keys(docIds);
+        opts = docs.reduce((prev, curr) => {
+          prev[`document_user/${curr}/${user}`] = null;
+          return prev;
+        }, {});
+      }
       await this.database.ref().update({
         ...userNull,
         ...opts,
       });
     });
+    await axios.post(`${url}/deleteUser`, users);
   };
 
   //Storage

@@ -16,6 +16,7 @@ import { FirebaseContext } from "../../components/Firebase";
 import { Description } from "@material-ui/icons";
 import { timeConverter } from "../../lib/timeConverter";
 import DoctorAccordion from "./DoctorAccordion";
+// import AddPerson from "./AddPerson";
 
 function DocumentDetails(props) {
   const firebaseContext = useContext(FirebaseContext);
@@ -110,6 +111,7 @@ function DocumentDetails(props) {
             )}
           </CardContent>
         </Card>
+        {/* <AddPerson /> */}
         <Box my={3}>
           <Divider />
         </Box>

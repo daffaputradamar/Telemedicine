@@ -1,5 +1,5 @@
 {
   "projects": {
-    "default": "telermedicine"
+    "default": "ecg-telemedicine"
   }
 }
