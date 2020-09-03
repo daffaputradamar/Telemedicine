@@ -127,7 +127,7 @@ function SignUp({ navigation }) {
             {loading ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
-              <Text bold white center>
+              <Text bold black center>
                 Sign Up
               </Text>
             )}

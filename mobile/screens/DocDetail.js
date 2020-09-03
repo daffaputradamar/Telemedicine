@@ -173,7 +173,7 @@ function DocDetail(props) {
               margin={[0, theme.sizes.padding * 2]}
             >
               <Button gradient onPress={() => saveReply()}>
-                <Text center semibold white>
+                <Text center bold black>
                   Simpan
                 </Text>
               </Button>
@@ -207,7 +207,7 @@ function DocDetail(props) {
           shadow
           onPress={() => setInput({ ...input, isEditing: true })}
         >
-          <Text center semibold white>
+          <Text center bold black>
             Beri Tanggapan
           </Text>
         </Button>

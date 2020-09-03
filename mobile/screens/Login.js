@@ -95,7 +95,7 @@ function Login(props) {
             {formLogin.loading ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
-              <Text bold white center>
+              <Text bold black center>
                 Login
               </Text>
             )}

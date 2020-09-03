@@ -120,7 +120,7 @@ function ChangePassword(props) {
             {changeForm.loading ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
-              <Text bold white center>
+              <Text bold black center>
                 Ganti
               </Text>
             )}

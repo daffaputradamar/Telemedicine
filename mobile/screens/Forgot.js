@@ -14,6 +14,7 @@ import { FirebaseContext } from "../components/Firebase";
 
 function Forgot(props) {
   const firebaseContext = useContext(FirebaseContext);
+  const { navigation } = props;
 
   const [forgotForm, setForgotForm] = useState({
     email: "",
@@ -22,7 +23,6 @@ function Forgot(props) {
   });
 
   const handleForgot = () => {
-    const { navigation } = props;
     const { email } = forgotForm;
     const errors = [];
 
@@ -91,7 +91,7 @@ function Forgot(props) {
             {forgotForm.loading ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
-              <Text bold white center>
+              <Text bold black center>
                 Forgot
               </Text>
             )}
