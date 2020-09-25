@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "ECG Telemedicine",
+    "slug": "ecg-telemedicine",
+    "privacy": "public",
+    "sdkVersion": "36.0.0",
+    "platforms": ["ios", "android"],
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon-new.png",
+    "splash": {
+      "image": "./assets/splash-new.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.ecg_telemedicine.telemedicine",
+      "versionCode": 1
+    },
+    "notification": {
+      "icon": "./assets/icon-push-notification.png",
+      "color": "#ffffff",
+      "androidMode": "default"
+    }
+  }
+}
