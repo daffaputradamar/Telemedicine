@@ -109,7 +109,6 @@ function Login(props) {
     <div className={classes.container}>
       <CssBaseline />
       <div
-        className={classes.greenBG}
         style={{
           flex: "0 1 auto",
         }}
